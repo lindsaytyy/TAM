@@ -1,0 +1,55 @@
+@import './variables.css';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+
+.app-content-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.9) 30%, rgba(255, 255, 255, 0.5)),
+        url("../public/assets/home/homepage.webp") no-repeat center center;
+    background-size: cover;
+    padding: 0 40px 0 40px;
+}
+
+.custom-icons {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.rightBox-btn {
+
+    /**
+    .ant-btn-primary 是一个类选择器，它选择所有带有 ant-btn-primary 类的元素。
+    :not([disabled]) 是一个伪类；选择那些不包含 disabled 属性的按钮
+    :not(.ant-btn-dangerous) 也是一个 伪类，它表示选择那些 不包含 ant-btn-dangerous 类的按钮。
+    */
+    &.ant-btn-primary:not([disabled]):not(.ant-btn-dangerous) {
+        position: relative;
+        min-width: 90px;
+
+        span {
+            position: relative;
+        }
+
+        &::before {
+            content: '';
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: absolute;
+            inset: -1px;
+            opacity: 1;
+            transition: all 0.3s;
+            border-radius: inherit;
+        }
+    }
+}

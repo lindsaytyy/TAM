@@ -1,0 +1,46 @@
+.table-container {
+    :where(.css-dev-only-do-not-override-1yacf91).ant-table-wrapper .ant-table {
+        min-height: 60vh;
+        overflow-x: scroll;
+        scrollbar-color: #D0DBF6 #fff !important;
+    }
+
+    .ant-table-tbody>tr>th,
+    .ant-table-tbody>tr>td,
+    .ant-table-thead>tr>th,
+    .ant-table-thead>tr>td {
+        border-bottom: none !important;
+    }
+
+
+    :where(.css-dev-only-do-not-override-1yacf91).ant-table-wrapper .ant-table-thead>tr>th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before,
+    :where(.css-dev-only-do-not-override-1yacf91).ant-table-wrapper .ant-table-thead>tr>td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+        content: none !important;
+        /* 或者 '""' 如果 'none' 不起作用 */
+        display: none;
+    }
+
+    a {
+        color: #8197E1;
+    }
+
+    .ant-pagination .ant-pagination-disabled,
+    .ant-pagination-next .ant-pagination-item-link,
+    .anticon {
+        color: #8197E1;
+        font-size: 20px;
+    }
+
+    .ant-pagination .ant-pagination-item-active:hover a,
+    .ant-pagination a {
+        color: #E8C8E7;
+    }
+
+    .ant-pagination .ant-pagination-item-active {
+        border: 1px solid #8197E1;
+    }
+
+    .ant-table-wrapper .ant-table-pagination-right {
+        justify-content: center;
+    }
+}

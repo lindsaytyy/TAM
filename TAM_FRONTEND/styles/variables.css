@@ -1,0 +1,14 @@
+:root {
+    /* 颜色变量 */
+    --primary-color: #8197E1;
+    --secondary-color: #E8C8E7;
+    --text-color: #1f2937;
+
+    /* 间距 */
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+
+    /* 其他设计系统变量 */
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}

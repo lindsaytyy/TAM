@@ -1,0 +1,9 @@
+{
+    "cSpell.words": [
+        "abicoder",
+        "IERC",
+        "keccak",
+        "viem"
+    ],
+    "solidity.defaultCompiler": "localNodeModule"
+}
