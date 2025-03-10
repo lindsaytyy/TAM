@@ -22,18 +22,23 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
+        working-directory: ./TAM_FRONTEND
         run: npm ci --ignore-scripts
 
       - name: Decrypt environment variables for production
+        working-directory: ./TAM_FRONTEND
         run: |
           npx dotenv-vault pull development --dotenv > .env
           chmod 600 .env  # 调整权限以增加安全性
 
       - name: Build the project
+        working-directory: ./TAM_FRONTEND
         run: npm run build
 
       - name: Remove decrypted .env files
+        working-directory: ./TAM_FRONTEND
         run: rm -f .env
 
       - name: Deploy to production
+        working-directory: ./TAM_FRONTEND
         run: npm run deploy
