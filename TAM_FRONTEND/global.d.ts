@@ -1,4 +1,14 @@
 // global.d.ts
 interface Window {
-    ethereum?: any; // 如果你知道 ethereum 的具体类型，可以替换 'unknown' 为更具体的类型
+    ethereum?: any;
+}
+interface ImportMetaEnv {
+    NEXT_PUBLIC_RPC_URL_HARDHAT: string
+    NEXT_PUBLIC_RPC_URL_SEPOLIA: string
+    NEXT_PUBLIC_RPC_URL_FUJI: string
+    NEXT_PUBLIC_RPC_URL_AMOY: string
+    DEV: boolean
+}
+interface ImportMeta {
+    env: ImportMetaEnv
 }

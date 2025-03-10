@@ -1,0 +1,37 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20.17.0"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Decrypt environment variables
+        env:
+          ENV_ENCRYPTION_KEY: ${{ secrets.ENV_PASSWORD }}
+        run: |
+          npx @chainlink/env-enc decrypt --key $ENV_PASSWORD --output .env
+
+      - name: Verify decrypted environment variables
+        run: cat .env
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Deploy to production
+        run: npm run deploy

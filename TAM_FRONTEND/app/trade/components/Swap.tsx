@@ -16,7 +16,7 @@ import {
 } from "@ant-design/web3";
 import Decimal from "decimal.js";
 import { uniq, debounce } from "lodash-es";
-import { usePublicClient } from "wagmi";
+import { usePublicClient, useChainId } from "wagmi";
 import { getContractAddr, getTokenInfo } from "@/utils/contractsAddress";
 import {
   useWriteSwapRouterExactInput,
@@ -28,11 +28,12 @@ import {
 } from "@/utils/contracts";
 import {
   ensureTokenOrder,
-  getTokenAddressInAvailableChains,
+  useTokenAddressInAvailableChains,
   computeSqrtPriceLimitX96,
   parseBigIntToAmount,
   parseAmountToBigInt,
 } from "@/utils/index";
+import { SUPPORTED_CHAINS, getRpcUrl } from "@/utils/wagmiClientRpc";
 import { Pools, Pair, defaultToken, SwapParams } from "../interfaces";
 import CommonButton from "@/components/commonButton/page";
 import "../page.scss";
@@ -44,8 +45,8 @@ const Swap: React.FC = () => {
   const [cryptoB, setCryptoB] = useState<CryptoInputProps["value"]>({
     ...defaultToken,
   });
-  const addressA = getTokenAddressInAvailableChains(cryptoA?.token) || "0x00";
-  const addressB = getTokenAddressInAvailableChains(cryptoB?.token) || "0x00";
+  const addressA = useTokenAddressInAvailableChains(cryptoA?.token) || "0x00";
+  const addressB = useTokenAddressInAvailableChains(cryptoB?.token) || "0x00";
   const zeroForOne = addressA < addressB; //false
   const { token0, token1 } = ensureTokenOrder(addressA, addressB);
   const [disabledSwap, setDisabledSwap] = useState<boolean>(true);
@@ -53,6 +54,7 @@ const Swap: React.FC = () => {
   /**
    * get token pairs
    */
+
   const { data: dataPairs = [] } = useReadPoolManagerGetPairs({
     address: getContractAddr("PoolManager") as `0x${string}`,
   });
@@ -131,6 +133,7 @@ const Swap: React.FC = () => {
    * simulateContract
    */
   const publicClient = usePublicClient();
+  const chainId = useChainId();
   const fetchAmountB = useRef(
     debounce(async (params: SwapParams) => {
       const {
@@ -253,15 +256,31 @@ const Swap: React.FC = () => {
   useEffect(() => {
     if (
       !publicClient ||
+      !chainId ||
       !addressA ||
       !addressB ||
       addressA == "0x00" ||
       addressB == "0x00"
     )
       return;
+    if (!SUPPORTED_CHAINS.some((c) => c.id === chainId)) {
+      console.error("不支持的链:", chainId);
+      return;
+    }
+
+    // const fetchBlockNumber = async () => {
+    //   try {
+    //     const blockNumber = await publicClient.getBlockNumber();
+    //     console.log("当前区块号:", blockNumber);
+    //   } catch (error) {
+    //     console.error("RPC 连接失败，请检查节点:", getRpcUrl(chainId));
+    //   }
+    // };
+
+    // fetchBlockNumber();
     if (swapIndexPath.length == 0) return message.warning("no available pool");
     handleQuote(addressA, addressB, swapIndexPath);
-  }, [handleQuote, addressA, addressB, swapIndexPath, publicClient]);
+  }, [handleQuote, addressA, addressB, swapIndexPath, publicClient, chainId]);
   /**
    *
    * */

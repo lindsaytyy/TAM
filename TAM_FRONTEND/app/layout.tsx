@@ -22,7 +22,8 @@ const HeaderLayout = dynamic(() => import("@/components/header/page"), {
 });
 export default function RootLayout({ children }: PropsWithChildren) {
   const queryClient = new QueryClient();
-
+  console.log("process.env",process.env);
+  
   return (
     <html>
       <head>
@@ -35,8 +36,8 @@ export default function RootLayout({ children }: PropsWithChildren) {
           }}
           chains={[Sepolia, Hardhat]}
           transports={{
-            [Hardhat.id]: http("http://127.0.0.1:8545"),
-            [Sepolia.id]: http("https://api.zan.top/public/eth-sepolia"),
+            [Hardhat.id]: http(process.env.NEXT_PUBLIC_RPC_URL_HARDHAT), // 从环境变量读取
+            // [Sepolia.id]: http(import.meta.env.NEXT_PUBLIC_RPC_URL_HARDHAT),
           }}
           ens
           wallets={[

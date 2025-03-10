@@ -19,9 +19,11 @@
     "react-dom": "^18",
     "react-router-dom": "^7.1.5",
     "sass": "^1.85.0",
+    "viem": "^2.23.8",
     "wagmi": "^2.14.11"
   },
   "devDependencies": {
+    "@chainlink/env-enc": "^1.0.5",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
     "@types/react": "^18",
