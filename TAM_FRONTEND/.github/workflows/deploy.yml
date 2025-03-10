@@ -8,30 +8,32 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DOTENV_KEY: ${{ secrets.ENV_PASSWORD }} # 确保在GitHub Secrets中设置了DOTENV_KEY
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "20.17.0"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
 
-      - name: Decrypt environment variables
-        env:
-          ENV_ENCRYPTION_KEY: ${{ secrets.ENV_PASSWORD }}
+      - name: Decrypt environment variables for production
         run: |
-          npx @chainlink/env-enc decrypt --key $ENV_PASSWORD --output .env
-
-      - name: Verify decrypted environment variables
-        run: cat .env
+          npx dotenv-vault pull development --dotenv > .env
+          chmod 600 .env  # 调整权限以增加安全性
 
       - name: Build the project
         run: npm run build
+
+      - name: Remove decrypted .env files
+        run: rm -f .env
 
       - name: Deploy to production
         run: npm run deploy

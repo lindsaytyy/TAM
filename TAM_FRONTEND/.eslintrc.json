@@ -1,3 +1,9 @@
+// .eslintrc 或 .eslintrc.json
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/babel", "next/core-web-vitals"],
+  "parserOptions": {
+    "babelOptions": {
+      "presets": ["next/babel"]
+    }
+  }
 }
