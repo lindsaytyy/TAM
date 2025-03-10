@@ -6,39 +6,48 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-frontend:
     runs-on: ubuntu-latest
     env:
-      DOTENV_KEY: ${{ secrets.ENV_PASSWORD }} # 确保在GitHub Secrets中设置了DOTENV_KEY
+      DOTENV_KEY: ${{ secrets.ENV_PASSWORD }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js for frontend
         uses: actions/setup-node@v3
         with:
           node-version: "20.17.0"
           cache: "npm"
 
-      - name: Install dependencies
-        working-directory: ./TAM_FRONTEND
+      - name: Cache node modules for frontend
+        uses: actions/cache@v3
+        with:
+          path: |
+            TAM_FRONTEND/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('TAM_FRONTEND/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install frontend dependencies
+        working-directory: TAM_FRONTEND
         run: npm ci --ignore-scripts
 
-      - name: Decrypt environment variables for production
-        working-directory: ./TAM_FRONTEND
+      - name: Decrypt frontend environment variables
+        working-directory: TAM_FRONTEND
         run: |
-          npx dotenv-vault pull development --dotenv > .env
-          chmod 600 .env  # 调整权限以增加安全性
+          npx dotenv-vault pull production --dotenv > .env
+          chmod 600 .env
 
-      - name: Build the project
-        working-directory: ./TAM_FRONTEND
+      - name: Build frontend project
+        working-directory: TAM_FRONTEND
         run: npm run build
 
-      - name: Remove decrypted .env files
-        working-directory: ./TAM_FRONTEND
+      - name: Remove decrypted .env files in frontend
+        working-directory: TAM_FRONTEND
         run: rm -f .env
 
-      - name: Deploy to production
-        working-directory: ./TAM_FRONTEND
+      - name: Deploy frontend
+        working-directory: TAM_FRONTEND
         run: npm run deploy
