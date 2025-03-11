@@ -1,5 +1,6 @@
 // src/config/rpc.ts
 import { Chain } from 'viem/chains'
+console.log(process.env,"===");
 
 export const SUPPORTED_CHAINS: [Chain, ...Chain[]] = [
   // {

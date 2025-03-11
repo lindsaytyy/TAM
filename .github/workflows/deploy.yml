@@ -36,6 +36,3 @@ jobs:
 
       - name: Remove decrypted .env files
         run: rm -f .env.production  # 强制删除明文文件
-
-      - name: Deploy to production
-        run: npm run deploy

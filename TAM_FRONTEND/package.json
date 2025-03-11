@@ -2,12 +2,12 @@
   "name": "tam-front-end",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "node -r dotenv/config ./node_modules/.bin/next",
-    "build": "node -r dotenv/config ./node_modules/.bin/next build",
-    "start": "node -r dotenv/config ./node_modules/.bin/next start",
-    "lint": "next lint"
-  },
+ "scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+},
   "dependencies": {
     "@ant-design/cssinjs": "^1.23.0",
     "@ant-design/web3": "^1.22.0",

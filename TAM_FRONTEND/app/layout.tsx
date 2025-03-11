@@ -22,7 +22,7 @@ const HeaderLayout = dynamic(() => import("@/components/header/page"), {
 });
 export default function RootLayout({ children }: PropsWithChildren) {
   const queryClient = new QueryClient();
-  console.log("process.env",process.env);
+  console.log("process.env",process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA);
   
   return (
     <html>
