@@ -1,4 +1,0 @@
-// 项目根目录创建 .babelrc
-{
-    "presets": ["next/babel"]
-  }
