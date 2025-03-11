@@ -29,7 +29,7 @@ jobs:
       - name: Decrypt .env.production
         env:
           DOTENV_KEY: ${{ secrets.ENV_PASSWORD }}  # 从 Secrets 注入生产密钥
-        run: npx dotenv-vault open production .env.production  # 使用 open 命令
+        run: npx dotenv-vault pull production  # 使用 open 命令
 
       - name: Build the project
         run: npm run build
