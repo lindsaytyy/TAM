@@ -18,7 +18,7 @@ export const SUPPORTED_CHAINS: [Chain, ...Chain[]] = [
     name: 'Sepolia',
     nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
-      default: { http: [import.meta.env.NEXT_PUBLIC_RPC_URL_SEPOLIA] },
+      default: { http: [process.env.NEXT_PUBLIC_RPC_URL_SEPOLIA || " "] },
     },
     blockExplorers: {
       default: { name: 'Etherscan', url: 'https://sepolia.etherscan.io' },
