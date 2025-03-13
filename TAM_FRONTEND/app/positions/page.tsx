@@ -71,7 +71,7 @@ const PositionsPage: React.FC = () => {
   });
   const router = useRouter();
   const handleCreate = () => {
-    router.push("/pool/create");
+    router.push("/positions/add");
   };
   return (
     <div className="positions-container">

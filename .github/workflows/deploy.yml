@@ -28,11 +28,11 @@ jobs:
 
       - name: Decrypt .env.production
         env:
-          DOTENV_KEY: ${{ secrets.DOTENV_KEY }}  # 从 Secrets 注入生产密钥
-        run: npx dotenv-vault open production  # 使用 open 命令
+          DOTENV_KEY: ${{ secrets.DOTENV_KEY }}  
+        run: npx dotenv-vault open production 
 
       - name: Build the project
         run: npm run build
 
       - name: Remove decrypted .env files
-        run: rm -f .env.production  # 强制删除明文文件
+        run: rm -f .env.production  

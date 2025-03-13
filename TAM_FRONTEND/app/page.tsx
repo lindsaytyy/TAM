@@ -13,7 +13,7 @@ export default function Home() {
           color: "var(--primary-color)",
         }}
       >
-        THIS IS A SIMPLE DEMO OF WEB3
+       THIS IS A SIMPLE DEMO OF WEB3
       </div>
     </div>
   );
