@@ -1,13 +1,13 @@
 .headerStyle {
     padding: 20px;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     height: 60px;
     font-weight: 485;
 
     .ant-menu {
-        width: 100%;
+        // width: 100%;
         background-color: transparent !important;
     }
 

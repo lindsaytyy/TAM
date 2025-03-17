@@ -15,17 +15,8 @@ import {
   useAccount,
 } from "@ant-design/web3";
 import Decimal from "decimal.js";
-import { uniq, debounce } from "lodash-es";
+import { debounce } from "lodash-es";
 import { usePublicClient, useChainId } from "wagmi";
-import { getContractAddr, getTokenInfo } from "@/utils/contractsAddress";
-import {
-  useWriteSwapRouterExactInput,
-  useWriteSwapRouterExactOutput,
-  useReadPoolManagerGetPairs,
-  useReadPoolManagerGetAllPools,
-  useWriteErc20Approve,
-  swapRouterAbi,
-} from "@/utils/contracts";
 import {
   ensureTokenOrder,
   useTokenAddressInAvailableChains,
@@ -33,20 +24,28 @@ import {
   parseBigIntToAmount,
   parseAmountToBigInt,
 } from "@/utils/index";
-import { SUPPORTED_CHAINS, getRpcUrl } from "@/utils/wagmiClientRpc";
-import { Pools, Pair, defaultToken, SwapParams } from "../interfaces";
+import { SUPPORTED_CHAINS } from "@/utils/wagmiClientRpc";
+import {
+  Pools,
+  defaultToken,
+  SwapParams,
+  SwapState,
+  QuoteParamsIn,
+  QuoteParamsOut,
+} from "../interfaces";
+import { useSwapData, useSwapQuote, useSwap } from "../hooks/useSwapData";
 import CommonButton from "@/components/commonButton/page";
-import "../page.scss";
 const Swap: React.FC = () => {
   const [pairs, setPairs] = useState<Token[]>([]);
-  const [cryptoA, setCryptoA] = useState<CryptoInputProps["value"]>({
-    ...defaultToken,
+  const [swapState, setSwapState] = useState<SwapState>({
+    input: { ...defaultToken },
+    output: { ...defaultToken },
+    loading: false,
   });
-  const [cryptoB, setCryptoB] = useState<CryptoInputProps["value"]>({
-    ...defaultToken,
-  });
-  const addressA = useTokenAddressInAvailableChains(cryptoA?.token) || "0x00";
-  const addressB = useTokenAddressInAvailableChains(cryptoB?.token) || "0x00";
+  const addressA =
+    useTokenAddressInAvailableChains(swapState.input?.token) || "0x00";
+  const addressB =
+    useTokenAddressInAvailableChains(swapState.output?.token) || "0x00";
   const zeroForOne = addressA < addressB; //false
   const { token0, token1 } = ensureTokenOrder(addressA, addressB);
   const [disabledSwap, setDisabledSwap] = useState<boolean>(true);
@@ -54,54 +53,38 @@ const Swap: React.FC = () => {
   /**
    * get token pairs
    */
-
-  const { data: dataPairs = [] } = useReadPoolManagerGetPairs({
-    address: getContractAddr("PoolManager") as `0x${string}`,
-  });
-  const memoizedDataPairs = useMemo(() => {
-    return dataPairs.map((pair) => ({
-      token0: pair.token0,
-      token1: pair.token1,
-    }));
-  }, [dataPairs]);
+  const { memoPairs, memoPools } = useSwapData();
   useEffect(() => {
-    if (memoizedDataPairs.length !== 0) {
-      const res = uniq(
-        memoizedDataPairs
-          .map((pair: Pair) => [pair.token0, pair.token1])
-          .flat()
-          .map((addr: string) => getTokenInfo(addr))
-      );
-      setPairs(res);
-      setCryptoA({
-        amount: BigInt(0),
-        inputString: "0",
-        token: res[1],
-      });
-      setCryptoB({
-        amount: BigInt(0),
-        inputString: "0",
-        token: res[0],
-      });
-    }
-  }, [memoizedDataPairs]);
+    if (memoPairs.length === 0) return;
+    setPairs(memoPairs);
+    setSwapState(() => {
+      return {
+        input: { amount: BigInt(0), inputString: "0", token: memoPairs[1] },
+        output: { amount: BigInt(0), inputString: "0", token: memoPairs[0] },
+        loading: false,
+      };
+    });
+  }, [memoPairs]);
 
   const availableTokensForB = useMemo(
-    () => pairs.filter((token) => token.symbol !== cryptoA?.token?.symbol),
-    [pairs, cryptoA?.token?.symbol]
+    () =>
+      pairs.filter((token) => token.symbol !== swapState.input?.token?.symbol),
+    [pairs, swapState.input?.token?.symbol]
   );
-  const availableTokensForA = pairs.filter((token) => {
-    if (!cryptoB?.token) return true;
-    return token.symbol !== cryptoB.token.symbol;
-  });
+  const availableTokensForA = useMemo(
+    () =>
+      pairs.filter((token) => {
+        if (!swapState.output?.token) return true;
+        return token.symbol !== swapState.output.token.symbol;
+      }),
+    [pairs, swapState.output?.token]
+  );
+
   /**
    * get pools and calculate
    */
 
-  const { data: dataPools = [] } = useReadPoolManagerGetAllPools({
-    address: getContractAddr("PoolManager") as `0x${string}`,
-  });
-  const swapPools = dataPools.filter((pool: Pools) => {
+  const swapPools = memoPools.filter((pool: Pools) => {
     return (
       pool.token0 === token0 && pool.token1 === token1 && pool.liquidity > 0
     );
@@ -132,38 +115,24 @@ const Swap: React.FC = () => {
   /**
    * simulateContract
    */
+  const { getQuote } = useSwapQuote();
   const publicClient = usePublicClient();
   const chainId = useChainId();
   const fetchAmountB = useRef(
-    debounce(async (params: SwapParams) => {
-      const {
-        _addressA,
-        _addressB,
-        _cryptoA,
-        _swapIndexPath,
-        _sqrtPriceLimitX96,
-      } = params;
+    debounce(async (params: QuoteParamsIn[]) => {
       try {
-        const res = (await publicClient?.simulateContract({
-          address: getContractAddr("SwapRouter") as `0x${string}`,
-          abi: swapRouterAbi,
-          functionName: "quoteExactInput",
-          args: [
-            {
-              tokenIn: _addressA,
-              tokenOut: _addressB,
-              indexPath: _swapIndexPath,
-              amountIn: _cryptoA?.amount || BigInt(100000),
-              sqrtPriceLimitX96: _sqrtPriceLimitX96 as bigint,
-            },
-          ],
-        })) || {
-          result: BigInt(0),
-        };
-        setCryptoB((prev) => ({
-          amount: res.result,
-          inputString: parseBigIntToAmount(res.result, prev?.token).toString(),
-          token: prev?.token,
+        const res = await getQuote("quoteExactInput", params);
+        setSwapState((prev) => ({
+          ...prev,
+          output: {
+            amount: res,
+            inputString: parseBigIntToAmount(
+              res,
+              prev.output?.token
+            ).toString(),
+            token: prev.output?.token,
+          },
+          loading: false,
         }));
       } catch (error) {
         console.log("error in fetchAmountB", error);
@@ -171,35 +140,17 @@ const Swap: React.FC = () => {
     }, 300)
   ).current;
   const fetchAmountA = useRef(
-    debounce(async (params: SwapParams) => {
-      const {
-        _addressA,
-        _addressB,
-        _cryptoB,
-        _swapIndexPath,
-        _sqrtPriceLimitX96,
-      } = params;
+    debounce(async (params: QuoteParamsOut[]) => {
       try {
-        const res = (await publicClient?.simulateContract({
-          address: getContractAddr("SwapRouter") as `0x${string}`,
-          abi: swapRouterAbi,
-          functionName: "quoteExactOutput",
-          args: [
-            {
-              tokenIn: _addressA,
-              tokenOut: _addressB,
-              indexPath: _swapIndexPath,
-              amountOut: _cryptoB?.amount || BigInt(100000),
-              sqrtPriceLimitX96: _sqrtPriceLimitX96 as bigint,
-            },
-          ],
-        })) || {
-          result: BigInt(0),
-        };
-        setCryptoA((prev) => ({
-          amount: res.result,
-          inputString: parseBigIntToAmount(res.result, prev?.token).toString(),
-          token: prev?.token,
+        const res = await getQuote("quoteExactOutput", params);
+        setSwapState((prev) => ({
+          ...prev,
+          input: {
+            amount: res,
+            inputString: parseBigIntToAmount(res, prev.input?.token).toString(),
+            token: prev.input?.token,
+          },
+          loading: false,
         }));
       } catch (error) {
         console.log("error in fetchAmountA", error);
@@ -213,45 +164,74 @@ const Swap: React.FC = () => {
       _addressB: `0x${string}`,
       _swapIndexPath: number[]
     ) => {
+      const basicParams = {
+        tokenIn: _addressA,
+        tokenOut: _addressB,
+        sqrtPriceLimitX96,
+        indexPath: _swapIndexPath,
+      };
       try {
         if (isExactInput) {
-          if (cryptoA?.inputString && cryptoA?.inputString !== "0") {
-            await fetchAmountB({
-              _addressA,
-              _addressB,
-              _cryptoA: cryptoA,
-              _swapIndexPath,
-              _sqrtPriceLimitX96: sqrtPriceLimitX96,
-            });
-          } else if (cryptoA && cryptoA?.inputString == undefined) {
-            setCryptoB({
-              amount: BigInt(0),
-              inputString: "0",
-              token: cryptoB?.token,
-            });
+          if (
+            swapState.input?.inputString &&
+            swapState.input?.inputString !== "0"
+          ) {
+            await fetchAmountB([
+              {
+                ...basicParams,
+                amountIn: swapState.input?.amount || BigInt(100000),
+              },
+            ]);
+          } else if (
+            swapState.input &&
+            swapState.input?.inputString == undefined
+          ) {
+            setSwapState((prev) => ({
+              ...prev,
+              output: {
+                amount: BigInt(0),
+                inputString: "0",
+                token: prev.output?.token,
+              },
+            }));
           }
         } else {
-          if (cryptoB?.inputString && cryptoB?.inputString !== "0") {
-            await fetchAmountA({
-              _addressA,
-              _addressB,
-              _cryptoB: cryptoB,
-              _swapIndexPath,
-              _sqrtPriceLimitX96: sqrtPriceLimitX96,
-            });
-          } else if (cryptoB && cryptoB?.inputString == undefined) {
-            setCryptoA({
-              amount: BigInt(0),
-              inputString: "0",
-              token: cryptoA?.token,
-            });
+          if (
+            swapState.output?.inputString &&
+            swapState.output?.inputString !== "0"
+          ) {
+            await fetchAmountA([
+              {
+                ...basicParams,
+                amountOut: swapState.output?.amount || BigInt(100000),
+              },
+            ]);
+          } else if (
+            swapState.output &&
+            swapState.output?.inputString == undefined
+          ) {
+            setSwapState((prev) => ({
+              ...prev,
+              input: {
+                amount: BigInt(0),
+                inputString: "0",
+                token: prev.input?.token,
+              },
+            }));
           }
         }
       } catch (error) {
         console.error("Error during quote handling:", error);
       }
     },
-    [isExactInput, cryptoA, cryptoB, sqrtPriceLimitX96]
+    [
+      isExactInput,
+      swapState.input,
+      swapState.output,
+      sqrtPriceLimitX96,
+      fetchAmountA,
+      fetchAmountB,
+    ]
   );
   useEffect(() => {
     if (
@@ -267,17 +247,6 @@ const Swap: React.FC = () => {
       console.error("不支持的链:", chainId);
       return;
     }
-
-    // const fetchBlockNumber = async () => {
-    //   try {
-    //     const blockNumber = await publicClient.getBlockNumber();
-    //     console.log("当前区块号:", blockNumber);
-    //   } catch (error) {
-    //     console.error("RPC 连接失败，请检查节点:", getRpcUrl(chainId));
-    //   }
-    // };
-
-    // fetchBlockNumber();
     if (swapIndexPath.length == 0) return message.warning("no available pool");
     handleQuote(addressA, addressB, swapIndexPath);
   }, [handleQuote, addressA, addressB, swapIndexPath, publicClient, chainId]);
@@ -287,127 +256,79 @@ const Swap: React.FC = () => {
   const [tokenBalances, setTokenBalances] = useState<
     CryptoInputProps["balance"][]
   >([]);
-  const clickSwapIcon = useCallback(async () => {
+  const clickSwapIcon = async () => {
     setIsExactInput((prev) => !prev);
-    setCryptoA((prevA) => ({ ...prevA, ...cryptoB }));
-    setCryptoB((prevB) => ({ ...prevB, ...cryptoA }));
-    setTokenBalances((prev) => [prev[1], prev[0]]); // 函数式更新
-  }, [cryptoA, cryptoB]);
+    setSwapState((prev) => ({
+      input: prev.output,
+      output: prev.input,
+      loading: false,
+    }));
+    setTokenBalances((prev) => [prev[1], prev[0]]);
+  };
 
   /**
    * ==============writeQuoteExactInput
    */
+  const { getSwap } = useSwap();
   const { account } = useAccount();
-  const { writeContractAsync: writeApprove } = useWriteErc20Approve();
-  const { writeContractAsync: writeQuoteExactInput } =
-    useWriteSwapRouterExactInput();
-  const { writeContractAsync: writeQuoteExactOutput } =
-    useWriteSwapRouterExactOutput();
   const swapTokenB = useCallback(
-    async ({
-      _addressA,
-      _cryptoA,
-      _addressB,
-      _swapIndexPath,
-      _account,
-    }: SwapParams) => {
-      await writeApprove({
-        address: _addressA,
-        args: [
-          getContractAddr("SwapRouter") as `0x${string}`,
-          _cryptoA?.amount as bigint,
-        ],
-      });
-      await writeQuoteExactInput({
-        address: getContractAddr("SwapRouter") as `0x${string}`,
-        args: [
-          {
-            tokenIn: _addressA,
-            tokenOut: _addressB,
-            indexPath: _swapIndexPath,
-            recipient: _account as `0x${string}`,
-            amountIn: _cryptoA?.amount as bigint,
-            amountOutMinimum: BigInt(0),
-            sqrtPriceLimitX96,
-            deadline: BigInt(Math.floor(Date.now() / 1000) + 1000),
-          },
-        ],
+    async (args: SwapParams) => {
+      await getSwap("writeExactInput", {
+        ...args,
+        amountIn: swapState.input?.amount as bigint,
+        amountOutMinimum: BigInt(0),
       });
     },
-    [sqrtPriceLimitX96, writeApprove, writeQuoteExactInput]
+    [getSwap, swapState.input?.amount]
   );
 
   const swapTokenA = useCallback(
-    async ({
-      _addressA,
-      _cryptoB,
-      _cryptoA,
-      _addressB,
-      _swapIndexPath,
-      _account,
-    }: SwapParams) => {
-      await writeApprove({
-        address: _addressA,
-        args: [
-          getContractAddr("SwapRouter") as `0x${string}`,
-          parseAmountToBigInt(
-            Math.ceil(Number(_cryptoA?.inputString)),
-            _cryptoB?.token
-          ),
-        ],
-      });
-      await writeQuoteExactOutput({
-        address: getContractAddr("SwapRouter") as `0x${string}`,
-        args: [
-          {
-            tokenIn: _addressA,
-            tokenOut: _addressB,
-            indexPath: _swapIndexPath,
-            recipient: _account as `0x${string}`,
-            amountOut: parseAmountToBigInt(Number(_cryptoB?.inputString)),
-            amountInMaximum: parseAmountToBigInt(
-              Math.ceil(Number(_cryptoB?.inputString)),
-              _cryptoB?.token
-            ),
-            sqrtPriceLimitX96,
-            deadline: BigInt(Math.floor(Date.now() / 1000) + 1000),
-          },
-        ],
+    async (args: SwapParams) => {
+      await getSwap("writeExactOutput", {
+        ...args,
+        amountOut: parseAmountToBigInt(Number(swapState.output?.inputString)),
+        amountInMaximum: parseAmountToBigInt(
+          Math.ceil(Number(swapState.output?.inputString)),
+          swapState.output?.token
+        ),
       });
     },
-    [sqrtPriceLimitX96, writeApprove, writeQuoteExactOutput]
+    [getSwap, swapState.output]
   );
 
   const handleSwap = useCallback(async () => {
-    if (swapIndexPath.length == 0) return message.warning("no available pool");
-    if (!account?.address)
-      return message.warning("please connect to wallet first");
-    if (isExactInput && cryptoA?.inputString) {
-      await swapTokenB({
-        _addressA: addressA,
-        _cryptoA: cryptoA,
-        _addressB: addressB,
-        _swapIndexPath: swapIndexPath,
-        _account: account?.address as `0x${string}`,
-      });
-    } else if (isExactInput === false && cryptoB?.inputString) {
-      await swapTokenA({
-        _addressA: addressA,
-        _cryptoA: cryptoA,
-        _cryptoB: cryptoB,
-        _addressB: addressB,
-        _swapIndexPath: swapIndexPath,
-        _account: account?.address as `0x${string}`,
-      });
+    if (!account?.address) return message.warning("Please connect wallet");
+    if (swapIndexPath.length === 0) return message.warning("No available pool");
+    setSwapState((prev) => ({ ...prev, loading: true }));
+    try {
+      const baseParams = {
+        tokenIn: addressA,
+        tokenOut: addressB,
+        indexPath: swapIndexPath,
+        recipient: account.address as `0x${string}`,
+        sqrtPriceLimitX96,
+        deadline: BigInt(Math.floor(Date.now() / 1000) + 1000),
+      };
+
+      if (isExactInput) {
+        await swapTokenB(baseParams);
+      } else {
+        await swapTokenA(baseParams);
+      }
+      message.success("Swap completed!");
+    } catch (error) {
+      console.error("Swap error:", error);
+      message.error(error instanceof Error ? error.message : "Swap failed");
+    } finally {
+      setSwapState((prev) => ({ ...prev, loading: false }));
     }
   }, [
-    swapIndexPath,
-    account,
+    account?.address,
     addressA,
     addressB,
-    cryptoA,
-    cryptoB,
     isExactInput,
+    swapIndexPath,
+    sqrtPriceLimitX96,
     swapTokenA,
     swapTokenB,
   ]);
@@ -417,15 +338,15 @@ const Swap: React.FC = () => {
     template
      */
 
-  const handleQueryCrypto = async (crptoIndex: number, token?: Token) => {
+  const handleQueryCrypto = async (cryptoIndex: number, token?: Token) => {
     const newTokenBalances = [...tokenBalances];
     if (!token) {
-      newTokenBalances[crptoIndex] = undefined;
+      newTokenBalances[cryptoIndex] = undefined;
       return setTokenBalances(newTokenBalances);
     }
 
     setTimeout(() => {
-      newTokenBalances[crptoIndex] = {
+      newTokenBalances[cryptoIndex] = {
         amount: BigInt(
           new Decimal(1000).times(Decimal.pow(10, token.decimal)).toFixed()
         ),
@@ -437,32 +358,50 @@ const Swap: React.FC = () => {
     }, 500);
   };
 
-  const handleChangeCryptoA = useRef((crypto: CryptoInputProps["value"]) => {
-    setCryptoA(crypto);
+  const handleChangeCryptoA = (crypto: CryptoInputProps["value"]) => {
+    setSwapState((prev) => ({
+      ...prev,
+      input: crypto,
+    }));
     if (crypto?.inputString) {
       setDisabledSwap(false);
       setIsExactInput(true);
     }
-    if (crypto?.token?.symbol !== cryptoA?.token?.symbol) {
+    if (crypto?.token?.symbol !== swapState.input?.token?.symbol) {
       handleQueryCrypto(0, crypto?.token);
     }
-  }).current;
+  };
 
-  const handleChangeCryptoB = useRef((crypto: CryptoInputProps["value"]) => {
-    setCryptoB(crypto);
+  const handleChangeCryptoB = (crypto: CryptoInputProps["value"]) => {
+    setSwapState((prev) => ({
+      ...prev,
+      output: crypto,
+    }));
     if (crypto?.inputString) {
       setDisabledSwap(false);
       setIsExactInput(false);
     }
-    if (crypto?.token?.symbol !== cryptoB?.token?.symbol) {
+    if (crypto?.token?.symbol !== swapState.output?.token?.symbol) {
       handleQueryCrypto(1, crypto?.token);
     }
-  }).current;
+  };
+
+  const validateInputs = useCallback(() => {
+    const { input, output } = swapState;
+    const validInput = Number(input?.inputString) > 0;
+    const validOutput = Number(output?.inputString) > 0;
+    const validTokens = input?.token && output?.token;
+    return validTokens && (isExactInput ? validInput : validOutput);
+  }, [swapState, isExactInput]);
+
+  useEffect(() => {
+    setDisabledSwap(!validateInputs());
+  }, [validateInputs]);
   return (
     <Flex vertical align="center" style={{ width: 456 }} gap={16}>
       <CryptoInput
         header={"Sell"}
-        value={cryptoA}
+        value={swapState.input}
         balance={tokenBalances[0]}
         onChange={(crypto) => handleChangeCryptoA(crypto)}
         options={availableTokensForA}
@@ -492,7 +431,7 @@ const Swap: React.FC = () => {
       </span>
       <CryptoInput
         header={"Buy"}
-        value={cryptoB}
+        value={swapState.output}
         balance={tokenBalances[1]}
         onChange={(crypto) => handleChangeCryptoB(crypto)}
         options={availableTokensForB}
@@ -502,7 +441,7 @@ const Swap: React.FC = () => {
         onClick={handleSwap}
         dis={disabledSwap}
       >
-        Swap
+        {swapState.loading ? "Processing..." : "Swap"}
       </CommonButton>
     </Flex>
   );

@@ -4,10 +4,7 @@ import { maxBy, minBy } from "lodash-es";
 import type { Token } from "@ant-design/web3";
 import { useChainId } from "wagmi";
 export const useTokenAddressInAvailableChains = (token?: Token) => {
-    // 使用React Hook来获取chainId
     const chainId = useChainId();
-    
-    // 返回找到的合约地址或者undefined
     return token?.availableChains.find((item) => item.chain.id === chainId)
         ?.contract as `0x${string}` | undefined;
 }

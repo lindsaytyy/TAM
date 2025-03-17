@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Button, Modal, Form, Input, Select, InputNumber, message } from "antd";
 import { getContractAddr } from "@/utils/contractsAddress";
 import { parsePriceToSqrtPriceX96 } from "@/utils/index";
-import "./InitPool.scss";
 interface CreatePoolParams {
   token0: `0x${string}`;
   token1: `0x${string}`;
@@ -25,10 +24,14 @@ const InitPool = (props: AddPoolModalProps) => {
       <Modal
         title="Create & Init Pool"
         open={openInit}
-        onCancel={cancelInit}
+        styles={{ body: { textAlign: "left" } }}
+        onCancel={() => {
+          form.resetFields();
+          cancelInit();
+        }}
         okText={"Init"}
         onOk={async () => {
-          const values = await form.validateFields().then((values) => {
+          await form.validateFields().then((values) => {
             if (values.token0 >= values.token1) {
               message.error("Token0 should be less than Token1");
               return false;
@@ -37,6 +40,7 @@ const InitPool = (props: AddPoolModalProps) => {
               ...values,
               sqrtPriceX96: parsePriceToSqrtPriceX96(values.price),
             });
+            form.resetFields();
           });
         }}
       >

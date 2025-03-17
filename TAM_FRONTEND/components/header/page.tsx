@@ -1,35 +1,23 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { Menu } from "antd";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { menuItems } from "./config";
 import "./header.scss";
-
-const Menu = dynamic(() => import("antd").then((mod) => mod.Menu), {
-  ssr: false,
-});
-const ConnectButton = dynamic(
-  () =>
-    import("@ant-design/web3").then((mod) => ({
-      default: mod.ConnectButton,
-    })),
-  {
-    ssr: false,
-  }
-);
-const Connector = dynamic(
-  () => import("@ant-design/web3").then((mod) => mod.Connector),
-  { ssr: false }
-);
-
+import dynamic from "next/dynamic";
+// const ConnectButton = dynamic(
+//   () => import("@rainbow-me/rainbowkit").then((mod) => mod.ConnectButton),
+//   {
+//     ssr: false,
+//   }
+// );
 function Header() {
   const router = useRouter();
-
   const clickMenuItem = (e: { key: string }) => {
     router.replace(`/${e.key}`);
   };
-
   const clickIconInHome = () => {
     router.replace(`/`);
   };
@@ -47,14 +35,7 @@ function Header() {
       />
       <Menu items={menuItems} mode="horizontal" onClick={clickMenuItem} />
       <div>
-        <Connector>
-          <ConnectButton
-            quickConnect
-            type="text"
-            size="large"
-            className="rightBox-btn"
-          />
-        </Connector>
+        <ConnectButton label="connect wallet" />
       </div>
     </div>
   );

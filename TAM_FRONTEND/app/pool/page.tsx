@@ -31,9 +31,7 @@ const Pools: React.FC = () => {
       fee: v.fee,
     };
   });
-  useEffect(() => {
-    refetch();
-  }, []);
+  refetch();
   const columnsWithRender = useMemo(
     () =>
       (initialPoolsColumns ?? []).map((col) => ({
@@ -41,7 +39,7 @@ const Pools: React.FC = () => {
         render:
           col.key === "pool" ? (text: string) => <a>{text}</a> : undefined,
       })),
-    [initialPoolsColumns]
+    []
   );
   const [openInit, setOpenInit] = useState(false);
   return (

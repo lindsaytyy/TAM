@@ -10,8 +10,6 @@ import {
   useWritePositionManagerCollect,
 } from "@/utils/contracts";
 import { getContractAddr } from "@/utils/contractsAddress";
-
-import "./page.scss";
 import { message } from "antd";
 
 const PositionsPage: React.FC = () => {
@@ -74,8 +72,20 @@ const PositionsPage: React.FC = () => {
     router.push("/positions/add");
   };
   return (
-    <div className="positions-container">
-      <div className="create-div">
+    <div
+      className="positions-container"
+      style={{
+        padding: "4vh 10px 0 10px",
+      }}
+    >
+      <div
+        className="create-div"
+        style={{
+          display: "flex",
+          justifyContent: "start",
+          marginBottom: "10px",
+        }}
+      >
         <CommonButton onClick={handleCreate}>CREATE POSITIONS</CommonButton>
       </div>
       <MyPositionsTable poolData={poolData} initialColumns={column} />

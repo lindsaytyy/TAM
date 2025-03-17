@@ -8,7 +8,7 @@ import ICONCHAINQUAN from "@/public/assets/icons/chaiquan.png";
 import "./page.scss";
 const BreadCrumb: React.FC = () => {
   const pathname = usePathname();
-  const pathnames = pathname.split("/").filter((i) => i); 
+  const pathnames = pathname.split("/").filter((i) => i);
   const pathToNameMap: { [key: string]: string } = {
     trade: "TRADE",
     pool: "VIEW POOLS",
@@ -16,12 +16,16 @@ const BreadCrumb: React.FC = () => {
     add: "ADD LIQUIDITY",
     test: "MINT TOKEN",
   };
-
   const breadcrumbItems: { title: React.ReactNode }[] = [
     {
       title: (
         <Link href="/">
-          <Image src={ICONCHAINQUAN} alt="" className="custom-icons"></Image>
+          <Image
+            src={ICONCHAINQUAN}
+            alt="home icon"
+            className="custom-icons"
+            priority
+          ></Image>
           HOME
         </Link>
       ),
@@ -30,7 +34,7 @@ const BreadCrumb: React.FC = () => {
 
   pathnames.forEach((name, index) => {
     const fullPath = `/${pathnames.slice(0, index + 1).join("/")}`;
-    const displayName = pathToNameMap[name] || name; 
+    const displayName = pathToNameMap[name] || name;
     breadcrumbItems.push({
       title:
         index === pathnames.length - 1 ? (

@@ -4,7 +4,8 @@ import {
     type Token,
     useAccount,
 } from "@ant-design/web3";
-import { getTokenInfo } from "@/utils/contractsAddress"; export interface Pools {
+import { getTokenInfo } from "@/utils/contractsAddress"; import { extend } from "lodash-es";
+export interface Pools {
     pool: string;
     token0: string;
     token1: string;
@@ -27,11 +28,29 @@ export const defaultToken = {
     token: getTokenInfo("0x00"),
 }
 export interface SwapParams {
-    _addressA: `0x${string}`;
-    _addressB: `0x${string}`;
-    _cryptoA?: CryptoInputProps["value"];
-    _cryptoB?: CryptoInputProps["value"];
-    _swapIndexPath: number[];
-    _account?: `0x${string}`;
-    _sqrtPriceLimitX96?: bigint;
+    tokenIn: `0x${string}`;
+    tokenOut: `0x${string}`;
+    indexPath: number[];
+    recipient?: `0x${string}`;
+    sqrtPriceLimitX96?: bigint;
 }
+export interface QuoteParams {
+    tokenIn: `0x${string}`;
+    tokenOut: `0x${string}`;
+    indexPath: number[];
+    sqrtPriceLimitX96: bigint;
+}
+export interface QuoteParamsIn extends QuoteParams {
+    amountIn: bigint;
+}
+export interface QuoteParamsOut extends QuoteParams {
+    amountOut: bigint;
+}
+export type FunctionToParams<T extends "quoteExactInput" | "quoteExactOutput"> =
+    T extends "quoteExactInput" ? [QuoteParamsIn] : [QuoteParamsOut];
+
+export type SwapState = {
+    input: CryptoInputProps["value"];
+    output: CryptoInputProps["value"];
+    loading: boolean;
+};

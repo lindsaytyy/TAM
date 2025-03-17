@@ -12,7 +12,8 @@
     "@ant-design/cssinjs": "^1.23.0",
     "@ant-design/web3": "^1.22.0",
     "@ant-design/web3-wagmi": "^2.10.2",
-    "@tanstack/react-query": "^5.66.3",
+    "@rainbow-me/rainbowkit": "^2.2.4",
+    "@tanstack/react-query": "^5.68.0",
     "antd": "^5.24.3",
     "dotenv": "^16.4.7",
     "next": "^14.2.24",
@@ -20,7 +21,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.3.0",
     "sass": "^1.85.1",
-    "viem": "^2.23.9",
+    "viem": "^2.23.10",
     "wagmi": "^2.14.13"
   },
   "devDependencies": {

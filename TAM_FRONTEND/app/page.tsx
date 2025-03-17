@@ -6,6 +6,7 @@ export default function Home() {
         justifyContent: "center",
         alignItems: "center",
         height: "60vh",
+       
       }}
     >
       <div
@@ -13,7 +14,7 @@ export default function Home() {
           color: "var(--primary-color)",
         }}
       >
-       THIS IS A SIMPLE DEMO OF WEB3
+        THIS IS A SIMPLE DEMO OF WEB3
       </div>
     </div>
   );
