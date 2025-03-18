@@ -75,7 +75,7 @@ const Tokens = ({ onUpdate }: { onUpdate: (data: any) => void }) => {
       tokenA: tokenIn,
       tokenB: tokenOut,
     });
-  }, [tokenIn, tokenOut, onUpdate]);
+  }, [tokenIn, tokenOut]);
 
   const availableTokensForIn = tokens.filter((token) => {
     if (!tokenOut) return true;
@@ -124,11 +124,12 @@ export const StepOne = ({ onUpdate }: { onUpdate: (data: any) => void }) => {
   });
   const [fee, setFee] = useState();
   useEffect(() => {
+    console.log("onUpdate in StepOne");
     onUpdate({
       ...tokens,
       fee,
     });
-  }, [tokens, fee, onUpdate]);
+  }, [tokens, fee]);
 
   return (
     <div className="step-one">
@@ -157,7 +158,7 @@ export const StepTwo = ({
       inputMin,
       inputMax,
     });
-  }, [inputMin, inputMax, onUpdate]);
+  }, [inputMin, inputMax]);
   return (
     <div className="step-two">
       <Row gutter={16}>
@@ -215,7 +216,7 @@ export const StepThree = ({
       inputMintTokenA,
       inputMintTokenB,
     });
-  }, [inputMintTokenA, inputMintTokenB, onUpdate]);
+  }, [inputMintTokenA, inputMintTokenB]);
   return (
     <div className="step-three">
       <div>

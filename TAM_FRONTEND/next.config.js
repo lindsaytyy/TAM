@@ -14,7 +14,6 @@ const nextConfig = {
             'antd'
         ]
     },
-    generateBuildStatsFile: true,
 };
 
 module.exports = withBundleAnalyzer(nextConfig);;
