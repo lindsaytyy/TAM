@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Modal, Form, Input, Select, InputNumber, message } from "antd";
+import { Modal, Form, Input, Select, InputNumber, message } from "antd";
 import { getContractAddr } from "@/utils/contractsAddress";
 import { parsePriceToSqrtPriceX96 } from "@/utils/index";
 interface CreatePoolParams {

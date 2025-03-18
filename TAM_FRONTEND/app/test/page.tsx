@@ -1,13 +1,11 @@
 "use client";
-import React, { use, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Select, Input, message } from "antd";
 import { useAccount } from "wagmi";
 import CommonButton from "@/components/commonButton/page";
 import { useWriteTestTokenMint, useWriteErc20Approve } from "@/utils/contracts";
 import { getContractAddr } from "@/utils/contractsAddress";
 import { isValidEthereumAddress } from "@/utils/index";
-import "./page.scss";
-
 const Mint: React.FC = () => {
   const { writeContractAsync: mint } = useWriteTestTokenMint();
   const { writeContractAsync: approve } = useWriteErc20Approve();
@@ -48,7 +46,7 @@ const Mint: React.FC = () => {
   };
 
   return (
-    <div className="test-container">
+    <div style={{ paddingTop: "4%" }}>
       <Select
         mode="multiple"
         allowClear
@@ -59,11 +57,11 @@ const Mint: React.FC = () => {
         options={[
           {
             value: getContractAddr("TestTokenA"),
-            label: "TOKENA",
+            label: "TOKEN-A",
           },
           {
             value: getContractAddr("TestTokenB"),
-            label: "TOKENB",
+            label: "TOKEN-B",
           },
         ]}
       />
@@ -93,15 +91,6 @@ const Mint: React.FC = () => {
           MINT
         </CommonButton>
       </div>
-      {/* <div style={{ marginTop: 20 }}>
-        <CommonButton
-          onClick={handleApprove}
-          size="small"
-          dis={valueA.length === 0}
-        >
-          APPROVE
-        </CommonButton>
-      </div> */}
     </div>
   );
 };

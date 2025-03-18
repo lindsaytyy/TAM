@@ -1,10 +1,10 @@
 import { Metadata } from "next";
-import { PropsWithChildren, memo } from "react";
+import { PropsWithChildren } from "react";
 import { RainBowProvider } from "@/components/web3/RainBowPage";
 import { RootStyleRegistry } from "./RootStyleRegistry";
-import "../styles/globals.css";
 import HeaderMemo from "@/components/header/page";
 import BreadCrumb from "@/components/breadcrumb/page";
+import "../styles/globals.css";
 export const metadata: Metadata = {
   title: {
     default: "TAM",
@@ -36,7 +36,6 @@ export default function RootLayout({ children }: PropsWithChildren) {
                 padding: "0 40px 0 40px",
               }}
             >
-            
               <BreadCrumb />
               {children}
             </div>

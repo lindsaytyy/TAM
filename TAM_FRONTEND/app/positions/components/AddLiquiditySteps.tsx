@@ -4,7 +4,7 @@ import { Card, Col, Row, Input } from "antd";
 import { TokenSelect, type Token } from "@ant-design/web3";
 import { uniq } from "lodash-es";
 import { getContractAddr } from "@/utils/contractsAddress";
-import { feeList, Fee, defaultToken } from "../add/data";
+import { feeList, Fee, defaultToken } from "../utils/data";
 import { getTokenInfo } from "@/utils/contractsAddress";
 import { useReadPoolManagerGetPairs } from "@/utils/contracts";
 import "../add/page.scss";

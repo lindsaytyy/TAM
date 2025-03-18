@@ -1,5 +1,4 @@
 "use client";
-import React, { use, useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import MyPositionsTable, { RenderTypeInColumn } from "@/components/table/page";
 import CommonButton from "@/components/commonButton/page";

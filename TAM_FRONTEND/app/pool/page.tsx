@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useMemo } from "react";
+import { message } from "antd";
 import {
   useReadPoolManagerGetAllPools,
   useWritePoolManagerCreateAndInitializePoolIfNecessary,
@@ -10,13 +10,10 @@ import { getContractAddr } from "@/utils/contractsAddress";
 import InitPool from "./components/InitPool";
 import CommonButton from "@/components/commonButton/page";
 import MyPositionsTable from "@/components/table/page";
-import "./page.scss";
-import { message } from "antd";
 
 const Pools: React.FC = () => {
   const { writeContractAsync: writeCreateAndInit } =
     useWritePoolManagerCreateAndInitializePoolIfNecessary();
-  const router = useRouter();
   const handleInit = () => {
     setOpenInit(true);
   };
@@ -43,7 +40,7 @@ const Pools: React.FC = () => {
   );
   const [openInit, setOpenInit] = useState(false);
   return (
-    <div className="pool-container">
+    <div style={{ padding: "4vh 10px 0 10px" }}>
       <InitPool
         openInit={openInit}
         cancelInit={() => setOpenInit(false)}
@@ -56,7 +53,13 @@ const Pools: React.FC = () => {
           message.success("create and init pool success");
         }}
       ></InitPool>
-      <div className="create-div">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "start",
+          marginBottom: "10px",
+        }}
+      >
         <CommonButton onClick={handleInit}>INIT POOL</CommonButton>
       </div>
       <MyPositionsTable

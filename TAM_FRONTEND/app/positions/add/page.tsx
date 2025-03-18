@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Button, message, Steps, theme } from "antd";
 import { useAccount } from "wagmi";
@@ -7,7 +7,7 @@ import CommonButton from "@/components/commonButton/page";
 import { useWritePositionManagerMint } from "@/utils/contracts";
 import { getContractAddr } from "@/utils/contractsAddress";
 import { isValidObject } from "@/utils/index";
-import { defaultToken } from "./data";
+import { defaultToken } from "../utils/data";
 import { StepOne } from "../components/AddLiquiditySteps";
 const StepTwo = dynamic(
   () => import("../components/AddLiquiditySteps").then((mod) => mod.StepTwo),
