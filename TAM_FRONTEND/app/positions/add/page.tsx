@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Button, message, Steps, theme } from "antd";
-import { useAccount } from "@ant-design/web3";
+import { useAccount } from "wagmi";
 import CommonButton from "@/components/commonButton/page";
 import { useWritePositionManagerMint } from "@/utils/contracts";
 import { getContractAddr } from "@/utils/contractsAddress";
@@ -45,7 +45,7 @@ const Create: React.FC = () => {
 
   const { writeContractAsync: writePositionManagerMint } =
     useWritePositionManagerMint();
-  const { account } = useAccount();
+  const { address } = useAccount();
 
   const [formData, setFormData] = useState<FormData>({
     1: {
@@ -63,7 +63,7 @@ const Create: React.FC = () => {
     },
   });
   const handleMint = async () => {
-    if (account?.address === undefined) {
+    if (address === undefined) {
       message.error("Please connect wallet first");
       return;
     }
@@ -79,7 +79,7 @@ const Create: React.FC = () => {
             index: 0,
             amount0Desired: BigInt(inputMintTokenA),
             amount1Desired: BigInt(inputMintTokenB),
-            recipient: account?.address as `0x${string}`,
+            recipient: address as `0x${string}`,
             deadline: BigInt(Date.now() + 100000),
           },
         ],
@@ -105,16 +105,6 @@ const Create: React.FC = () => {
     nextBtn: getButtonState(0),
     stepTwoBtn: getButtonState(1),
     createBtn: getButtonState(2),
-  };
-
-  interface ButtonStateMapping {
-    [key: number]: string;
-  }
-
-  const buttonStateMapping: ButtonStateMapping = {
-    0: "nextBtn",
-    1: "stepTwoBtn",
-    2: "createBtn",
   };
 
   const handleStepUpdate = (stepKey: number, data: any) => {

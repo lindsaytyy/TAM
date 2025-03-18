@@ -1,5 +1,5 @@
-import { Hardhat, Sepolia } from "@ant-design/web3-wagmi";
-import { Token, type CryptoInputProps } from "@ant-design/web3";
+import { hardhat, sepolia } from '@wagmi/core/chains'
+import { Token } from "@ant-design/web3";
 // 定义包含所有合约地址的对象
 type ContractName = 'Owner' | 'Factory' | 'TestTokenA' | 'TestTokenB' | 'MockLP' | 'MockSwap' | 'PoolManager' | 'PositionManager' | 'SwapRouter';
 const contractAddresses: { [key in ContractName]: string } = {
@@ -30,7 +30,7 @@ export const tokenList = {
         decimal: 18,
         availableChains: [
             {
-                chain: Hardhat,
+                chain: hardhat,
                 contract: contractAddresses["TestTokenA"]
             }
         ]
@@ -43,7 +43,7 @@ export const tokenList = {
         decimal: 18,
         availableChains: [
             {
-                chain: Hardhat,
+                chain: hardhat,
                 contract: contractAddresses["TestTokenB"]
             }
         ]
@@ -62,11 +62,11 @@ export const getTokenInfo = (address: string): Token => {
         name: address,
         availableChains: [
             {
-                chain: Hardhat,
+                chain: hardhat,
                 contract: address,
             },
             {
-                chain: Sepolia,
+                chain: sepolia,
                 contract: address,
             },
         ],

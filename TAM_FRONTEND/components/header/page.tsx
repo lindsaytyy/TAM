@@ -6,13 +6,6 @@ import { Menu } from "antd";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { menuItems } from "./config";
 import "./header.scss";
-import dynamic from "next/dynamic";
-// const ConnectButton = dynamic(
-//   () => import("@rainbow-me/rainbowkit").then((mod) => mod.ConnectButton),
-//   {
-//     ssr: false,
-//   }
-// );
 function Header() {
   const router = useRouter();
   const clickMenuItem = (e: { key: string }) => {
@@ -24,7 +17,7 @@ function Header() {
 
   return (
     <div className="headerStyle">
-      <Image
+      {/* <Image
         src={"/assets/home/icon.webp"}
         alt="icon"
         className="headerStyle-iconStyle"
@@ -32,7 +25,7 @@ function Header() {
         height={50}
         onClick={clickIconInHome}
         priority
-      />
+      /> */}
       <Menu items={menuItems} mode="horizontal" onClick={clickMenuItem} />
       <div>
         <ConnectButton label="connect wallet" />

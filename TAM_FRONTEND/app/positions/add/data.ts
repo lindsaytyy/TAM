@@ -1,5 +1,4 @@
-import { Hardhat, Sepolia } from "@ant-design/web3-wagmi";
-
+import { hardhat } from '@wagmi/core/chains'
 export interface Fee {
     title: string;
     description: string;
@@ -12,7 +11,7 @@ export const defaultToken = {
     icon: null,
     decimal: 8,
     availableChains: [{
-        chain: Hardhat,
+        chain: hardhat,
         contract: "0x00"
     }]
 };

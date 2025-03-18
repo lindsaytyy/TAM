@@ -1,7 +1,7 @@
 "use client";
-import React, { use, useState, useEffect, useMemo } from "react";
+import React, { use, useState, useEffect } from "react";
 import { Select, Input, message } from "antd";
-import { useAccount } from "@ant-design/web3";
+import { useAccount } from "wagmi";
 import CommonButton from "@/components/commonButton/page";
 import { useWriteTestTokenMint, useWriteErc20Approve } from "@/utils/contracts";
 import { getContractAddr } from "@/utils/contractsAddress";
@@ -15,12 +15,12 @@ const Mint: React.FC = () => {
   const [valueA, setValueA] = useState([getContractAddr("TestTokenA")]);
   const [owner, setOwner] = useState<string>("");
   const [amount, setAmount] = useState<string>("1000000000000000000000");
-  const { account } = useAccount();
+  const { address } = useAccount();
   useEffect(() => {
-    if (account?.address) {
-      setOwner(account?.address as `0x${string}`);
+    if (address) {
+      setOwner(address as `0x${string}`);
     }
-  }, [account]);
+  }, [address]);
 
   const handleMint = async () => {
     if (!isValidEthereumAddress(owner))

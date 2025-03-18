@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, Col, Row, Input } from "antd";
-import { TokenSelect, type Token, useAccount } from "@ant-design/web3";
+import { TokenSelect, type Token } from "@ant-design/web3";
 import { uniq } from "lodash-es";
 import { getContractAddr } from "@/utils/contractsAddress";
 import { feeList, Fee, defaultToken } from "../add/data";
@@ -75,7 +75,7 @@ const Tokens = ({ onUpdate }: { onUpdate: (data: any) => void }) => {
       tokenA: tokenIn,
       tokenB: tokenOut,
     });
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut, onUpdate]);
 
   const availableTokensForIn = tokens.filter((token) => {
     if (!tokenOut) return true;
@@ -128,7 +128,7 @@ export const StepOne = ({ onUpdate }: { onUpdate: (data: any) => void }) => {
       ...tokens,
       fee,
     });
-  }, [tokens, fee]);
+  }, [tokens, fee, onUpdate]);
 
   return (
     <div className="step-one">
@@ -157,7 +157,7 @@ export const StepTwo = ({
       inputMin,
       inputMax,
     });
-  }, [inputMin, inputMax]);
+  }, [inputMin, inputMax, onUpdate]);
   return (
     <div className="step-two">
       <Row gutter={16}>
@@ -215,7 +215,7 @@ export const StepThree = ({
       inputMintTokenA,
       inputMintTokenB,
     });
-  }, [inputMintTokenA, inputMintTokenB]);
+  }, [inputMintTokenA, inputMintTokenB, onUpdate]);
   return (
     <div className="step-three">
       <div>

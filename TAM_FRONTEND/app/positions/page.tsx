@@ -13,29 +13,26 @@ import { getContractAddr } from "@/utils/contractsAddress";
 import { message } from "antd";
 
 const PositionsPage: React.FC = () => {
-  const column = useMemo(
-    () => [
-      ...initialMyPositionsColumns,
-      {
-        title: "Action",
-        key: "operation",
-        fixed: "right",
-        width: 180,
-        renderType: RenderTypeInColumn.LINK,
-        actions: [
-          {
-            label: "COLLECT",
-            onClick: handleCollect,
-          },
-          {
-            label: "BURN",
-            onClick: handleBurn,
-          },
-        ],
-      },
-    ],
-    []
-  );
+  const column = [
+    ...initialMyPositionsColumns,
+    {
+      title: "Action",
+      key: "operation",
+      fixed: "right",
+      width: 180,
+      renderType: RenderTypeInColumn.LINK,
+      actions: [
+        {
+          label: "COLLECT",
+          onClick: handleCollect,
+        },
+        {
+          label: "BURN",
+          onClick: handleBurn,
+        },
+      ],
+    },
+  ];
   const { writeContractAsync: writeCollect } = useWritePositionManagerCollect();
   async function handleCollect(record: any) {
     await writeCollect({

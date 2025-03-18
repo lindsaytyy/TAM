@@ -1,7 +1,7 @@
 "use client";
 import "@rainbow-me/rainbowkit/styles.css";
 import { PropsWithChildren } from "react";
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { WagmiProvider, http } from "wagmi";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { mainnet } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

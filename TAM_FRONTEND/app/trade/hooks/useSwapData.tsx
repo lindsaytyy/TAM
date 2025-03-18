@@ -1,12 +1,6 @@
-import { uniq, debounce } from "lodash-es";
+import { uniq } from "lodash-es";
 import { usePublicClient, useChainId } from "wagmi";
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   useWriteSwapRouterExactInput,
   useWriteSwapRouterExactOutput,
@@ -83,9 +77,7 @@ export const useSwap = () => {
           address: args.tokenIn as `0x${string}`,
           args: [
             getContractAddr("SwapRouter") as `0x${string}`,
-            functionName === "writeExactInput"
-              ? args.amountIn
-              : args.amountOut,
+            functionName === "writeExactInput" ? args.amountIn : args.amountOut,
           ],
         });
       } catch (error) {
